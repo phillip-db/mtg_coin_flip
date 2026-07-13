@@ -110,6 +110,8 @@ Configure the simulation with the same options as the CLI:
 - **Coins** - Spinbox for the number of coins per round (1-100).
 - **Mode** - Fixed or Continuous (Persistent). The flips spinbox appears only in Fixed mode.
 - **Pause between flips** - Checkbox that controls whether rounds advance one at a time with coin images, or all at once.
+- **Save Preset** - Enter a name and click "Save Preset" to store the current form settings for later use.
+- **Preset Sidebar** - A sidebar on the right lists all saved presets. Each preset shows its name and a short description of its config. Click **Load** to fill the form, **Run** to start the simulation immediately, or the delete button to remove it. Presets are saved to a `presets.json` file in the project directory.
 
 ### Simulation Screen
 
@@ -137,6 +139,8 @@ npm run dev
 The app is configured with a base path for GitHub Pages deployment, so the local URL includes the project name. Open `http://localhost:5173/mtg_coin_flip/` (note the trailing slash).
 
 The web app includes the same setup form, coin images (rendered as inline SVG), scrollable history log, and summary panel. The pause/unpause toggle works identically to the desktop GUI. Clicking "Reset" pre-fills the setup form with your previous settings. A session history panel persists across all screens, tracking flips won and the player's coin choice for each completed game.
+
+A **Presets** sidebar appears next to the setup form. Enter a name and click "Save Preset" to store the current configuration. Saved presets can be loaded into the form, run immediately, or deleted. Presets persist in `localStorage` across browser sessions.
 
 ### Production Build
 
@@ -167,12 +171,16 @@ mtg_coin_flip/
         ├── App.css
         ├── index.css
         ├── types.ts
+        ├── hooks/
+        │   └── usePresets.ts
         ├── logic/
         │   └── simulation.ts
         └── components/
             ├── CoinImage.tsx
             ├── SetupPanel.tsx
+            ├── PresetSidebar.tsx
             ├── CurrentRound.tsx
             ├── HistoryLog.tsx
+            ├── SessionHistory.tsx
             └── SummaryPanel.tsx
 ```

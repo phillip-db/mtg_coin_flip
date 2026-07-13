@@ -1,6 +1,11 @@
 import tkinter as tk
+import json
+import os
 from PIL import Image, ImageDraw, ImageFont, ImageTk
 from coin_flip import Coin, Mode, simulate, summarize, is_win
+
+PRESETS_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                            "presets.json")
 
 
 class App:
@@ -15,6 +20,8 @@ class App:
         self.frame_simulation = tk.Frame(root)
 
         self.game_count = 0
+
+        self.presets = self._load_presets()
 
         self._build_setup_panel()
         self._build_simulation_panel()
@@ -55,7 +62,14 @@ class App:
         tk.Label(self.frame_setup, text="SETUP SIMULATION",
                  font=("", 14, "bold")).pack(pady=20)
 
-        panel = tk.Frame(self.frame_setup)
+        setup_body = tk.Frame(self.frame_setup)
+        setup_body.pack(fill="both", expand=True, pady=10)
+
+        # Left: form
+        form_frame = tk.Frame(setup_body)
+        form_frame.pack(side="left", fill="both", expand=True)
+
+        panel = tk.Frame(form_frame)
         for col in range(3):
             panel.columnconfigure(col, weight=1, uniform="setup")
 
@@ -97,9 +111,27 @@ class App:
                        anchor=tk.W, variable=self.pause).grid(
             row=4, column=0, columnspan=3, sticky="nsew")
 
-        panel.pack(pady=10)
-        tk.Button(self.frame_setup, text="Start Flipping",
-                  command=self._start_simulation).pack(pady=10)
+        panel.pack(pady=5)
+        tk.Button(form_frame, text="Start Flipping",
+                  command=self._start_simulation).pack(pady=5)
+
+        # Save preset row
+        save_frame = tk.Frame(form_frame)
+        self.preset_name_var = tk.StringVar()
+        tk.Entry(save_frame, textvariable=self.preset_name_var,
+                 width=18).pack(side="left", padx=(0, 5))
+        tk.Button(save_frame, text="Save Preset",
+                  command=self._save_preset).pack(side="left")
+        save_frame.pack(pady=5)
+
+        # Right: preset sidebar
+        self.preset_sidebar = tk.LabelFrame(setup_body, text="Presets",
+                                            width=180)
+        self.preset_sidebar.pack(side="right", fill="y", padx=(10, 0))
+        self.preset_sidebar.pack_propagate(False)
+        self.preset_list_frame = tk.Frame(self.preset_sidebar)
+        self.preset_list_frame.pack(fill="both", expand=True, padx=5, pady=5)
+        self._refresh_preset_list()
 
     def _build_simulation_panel(self):
         self.frame_simulation.columnconfigure(0, weight=1)
@@ -147,6 +179,83 @@ class App:
                                     state="disabled", wrap="none",
                                     font=("Courier", 9))
         self.session_text.pack(fill="both", expand=True, padx=5, pady=5)
+
+    def _load_presets(self):
+        try:
+            with open(PRESETS_FILE, "r") as f:
+                return json.load(f)
+        except (FileNotFoundError, json.JSONDecodeError):
+            return []
+
+    def _save_presets_to_file(self):
+        with open(PRESETS_FILE, "w") as f:
+            json.dump(self.presets, f, indent=2)
+
+    def _save_preset(self):
+        name = self.preset_name_var.get().strip()
+        if not name:
+            return
+        preset = {
+            "name": name,
+            "choice": self.choice.get(),
+            "coins": self.coins.get(),
+            "mode": self.mode_var.get(),
+            "flips": self.flips.get(),
+            "pause": self.pause.get(),
+        }
+        self.presets.append(preset)
+        self._save_presets_to_file()
+        self.preset_name_var.set("")
+        self._refresh_preset_list()
+
+    def _load_preset(self, preset):
+        self.choice.set(preset["choice"])
+        self.coins.set(preset["coins"])
+        self.mode_var.set(preset["mode"])
+        self.flips.set(preset["flips"])
+        self.pause.set(preset["pause"])
+        self._on_mode_change()
+
+    def _run_preset(self, preset):
+        self._load_preset(preset)
+        self._start_simulation()
+
+    def _delete_preset(self, index):
+        self.presets.pop(index)
+        self._save_presets_to_file()
+        self._refresh_preset_list()
+
+    def _refresh_preset_list(self):
+        for widget in self.preset_list_frame.winfo_children():
+            widget.destroy()
+
+        if not self.presets:
+            tk.Label(self.preset_list_frame, text="No presets saved.",
+                     fg="gray").pack()
+            return
+
+        for i, p in enumerate(self.presets):
+            row = tk.Frame(self.preset_list_frame)
+            choice_name = "Heads" if p["choice"] == Coin.HEADS.value else "Tails"
+            mode_name = (f"{p['flips']} flips"
+                         if p["mode"] == Mode.FIXED.value else "Cont.")
+            desc = f"{choice_name}, {p['coins']}c, {mode_name}"
+            tk.Label(row, text=p["name"], font=("", 9, "bold"),
+                     anchor=tk.W).pack(fill="x")
+            tk.Label(row, text=desc, font=("", 7), fg="gray",
+                     anchor=tk.W).pack(fill="x")
+            btn_row = tk.Frame(row)
+            tk.Button(btn_row, text="Load", font=("", 7),
+                      command=lambda p=p: self._load_preset(p)).pack(
+                side="left", padx=1)
+            tk.Button(btn_row, text="Run", font=("", 7),
+                      command=lambda p=p: self._run_preset(p)).pack(
+                side="left", padx=1)
+            tk.Button(btn_row, text="\u00d7", font=("", 7),
+                      command=lambda i=i: self._delete_preset(i)).pack(
+                side="left", padx=1)
+            btn_row.pack(fill="x")
+            row.pack(fill="x", pady=(0, 5))
 
     def _on_mode_change(self):
         if self.mode_var.get() == Mode.FIXED.value:

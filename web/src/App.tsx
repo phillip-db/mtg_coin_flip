@@ -6,6 +6,8 @@ import CurrentRound from "./components/CurrentRound";
 import HistoryLog from "./components/HistoryLog";
 import SummaryPanel from "./components/SummaryPanel";
 import SessionHistory, { type GameRecord } from "./components/SessionHistory";
+import PresetSidebar from "./components/PresetSidebar";
+import usePresets from "./hooks/usePresets";
 import "./App.css";
 
 type View = "setup" | "simulation";
@@ -18,6 +20,9 @@ function App() {
   const [done, setDone] = useState(false);
   const [summary, setSummary] = useState<Summary | null>(null);
   const [sessionGames, setSessionGames] = useState<GameRecord[]>([]);
+  const [setupKey, setSetupKey] = useState(0);
+  const [setupInitial, setSetupInitial] = useState<SimConfig | null>(null);
+  const { presets, addPreset, deletePreset } = usePresets();
 
   const checkIsLast = useCallback(
     (allRounds: RoundResult[], latest: RoundResult, cfg: SimConfig) => {
@@ -41,6 +46,7 @@ function App() {
 
   const handleStart = useCallback((cfg: SimConfig) => {
     setConfig(cfg);
+    setSetupInitial(cfg);
     setRounds([]);
     setCurrentRound(null);
     setDone(false);
@@ -92,6 +98,12 @@ function App() {
     setCurrentRound(null);
     setDone(false);
     setSummary(null);
+    setSetupKey((k) => k + 1);
+  }, []);
+
+  const handleLoadPreset = useCallback((cfg: SimConfig) => {
+    setSetupInitial(cfg);
+    setSetupKey((k) => k + 1);
   }, []);
 
   const isLast =
@@ -103,7 +115,22 @@ function App() {
     <div className="app">
       <h1>MTG Coin Flip Simulator</h1>
 
-      {view === "setup" && <SetupPanel onStart={handleStart} initialConfig={config} />}
+      {view === "setup" && (
+        <div className="setup-layout">
+          <SetupPanel
+            key={setupKey}
+            onStart={handleStart}
+            onSavePreset={addPreset}
+            initialConfig={setupInitial ?? config}
+          />
+          <PresetSidebar
+            presets={presets}
+            onLoad={handleLoadPreset}
+            onRun={handleStart}
+            onDelete={deletePreset}
+          />
+        </div>
+      )}
 
       {view === "simulation" && config && (
         <>
