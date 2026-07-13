@@ -3,14 +3,15 @@ import { Coin, Mode, type SimConfig } from "../types";
 
 interface SetupPanelProps {
   onStart: (config: SimConfig) => void;
+  initialConfig?: SimConfig | null;
 }
 
-export default function SetupPanel({ onStart }: SetupPanelProps) {
-  const [choice, setChoice] = useState<Coin>(Coin.HEADS);
-  const [numCoins, setNumCoins] = useState(1);
-  const [mode, setMode] = useState<Mode>(Mode.FIXED);
-  const [maxFlips, setMaxFlips] = useState(1);
-  const [pause, setPause] = useState(true);
+export default function SetupPanel({ onStart, initialConfig }: SetupPanelProps) {
+  const [choice, setChoice] = useState<Coin>(initialConfig?.choice ?? Coin.HEADS);
+  const [numCoins, setNumCoins] = useState(initialConfig?.numCoins ?? 1);
+  const [mode, setMode] = useState<Mode>(initialConfig?.mode ?? Mode.FIXED);
+  const [maxFlips, setMaxFlips] = useState(initialConfig?.maxFlips ?? 1);
+  const [pause, setPause] = useState(initialConfig?.pause ?? true);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

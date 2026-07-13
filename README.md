@@ -47,7 +47,7 @@ You will be prompted to:
    - **Persistent** - keep flipping until no coin in a round lands on your choice.
 4. **Set the number of flips** (Fixed mode only).
 
-Each round displays every coin's result, marks matches, and shows whether you won or lost the round. A summary prints at the end.
+Each round displays every coin's result, marks matches, and shows whether you won or lost the round. A summary prints at the end. After the summary, you are prompted to run again - pressing Enter reuses your previous settings as defaults.
 
 ### Pause Flag
 
@@ -119,6 +119,8 @@ Configure the simulation with the same options as the CLI:
 
 When pausing is disabled, the simulation runs instantly and the history log and summary are shown without the current-round panel.
 
+Clicking "Reset" returns to the setup screen with your previous settings pre-filled.
+
 ## Web Version
 
 A React + TypeScript frontend with the same features as the desktop GUI, running entirely in the browser. No Python required.
@@ -130,9 +132,9 @@ cd web
 npm run dev
 ```
 
-Open the URL printed by Vite (typically `http://localhost:5173`).
+The app is configured with a base path for GitHub Pages deployment, so the local URL includes the project name. Open `http://localhost:5173/mtg_coin_flip/` (note the trailing slash).
 
-The web app includes the same setup form, coin images (rendered as inline SVG), scrollable history log, and summary panel. The pause/unpause toggle works identically to the desktop GUI.
+The web app includes the same setup form, coin images (rendered as inline SVG), scrollable history log, and summary panel. The pause/unpause toggle works identically to the desktop GUI. Clicking "Reset" pre-fills the setup form with your previous settings.
 
 ### Production Build
 

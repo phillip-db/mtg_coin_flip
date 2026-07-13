@@ -29,43 +29,57 @@ class Coin(Enum):
     HEADS = 1
     TAILS = 2
 
-def get_choice() -> Coin:
+def get_choice(default: Coin | None = None) -> Coin:
     """
     Prompt the user to pick heads or tails, re-asking on invalid input.
+
+    Args:
+        default: Previous choice to use if the user presses Enter without input.
 
     Returns:
         User's choice of `heads` or `tails`.
     """
+    suffix = f" [{default.name}]" if default else ""
     while True:
-        choice = input("Choose heads or tails (h/t): ").strip().lower()
+        choice = input(f"Choose heads or tails (h/t){suffix}: ").strip().lower()
+        if not choice and default:
+            return default
         if choice in ("h", "heads"):
             return Coin.HEADS
         if choice in ("t", "tails"):
             return Coin.TAILS
         print("Invalid input. Please enter 'h' or 't'.")
 
-def get_positive_int(prompt: str) -> int:
+def get_positive_int(prompt: str, default: int | None = None) -> int:
     """
     Prompt the user for a positive integer, re-asking on invalid input.
 
     Args:
         prompt: Text prompt displayed to the user.
+        default: Previous value to use if the user presses Enter without input.
 
     Returns:
         Positive integer converted from result of user response.
     """
+    suffix = f" [{default}]" if default else ""
     while True:
+        raw = input(f"{prompt}{suffix}: ").strip()
+        if not raw and default:
+            return default
         try:
-            value = int(input(prompt).strip())
+            value = int(raw)
             if value > 0:
                 return value
             print("Please enter a positive integer.")
         except ValueError:
             print("Invalid input. Please enter a number.")
 
-def get_mode() -> Mode:
+def get_mode(default: Mode | None = None) -> Mode:
     """
     Prompt the user to choose the stop condition: fixed number of flips or flip until no matches.
+
+    Args:
+        default: Previous mode to use if the user presses Enter without input.
 
     Returns:
         The user's chosen simulation `Mode.`
@@ -75,7 +89,15 @@ def get_mode() -> Mode:
         for m in Mode:
             print(f"  {m.value}) {m.description}")
         valid = [m.value for m in Mode]
-        mode = int(input(f"Select mode {valid}: ").strip())
+        suffix = f" [{default.value}]" if default else ""
+        raw = input(f"Select mode {valid}{suffix}: ").strip()
+        if not raw and default:
+            return default
+        try:
+            mode = int(raw)
+        except ValueError:
+            print(f"Invalid input. Please enter a number from {valid}.")
+            continue
         if mode in valid:
             return Mode(mode)
         print(f"Invalid input. Please enter a number from {valid}.")
@@ -144,43 +166,61 @@ def summarize(rounds: list[dict], choice: Coin) -> dict:
 def run_simulation():
     """
     Main entry point: gathers user input, runs the flip loop, and prints the summary.
+    Loops to allow re-running with previous settings as defaults.
     """
-    print("=== Coin Flip Simulator ===\n")
+    args = parser.parse_args()
+    prev_choice = None
+    prev_n = None
+    prev_mode = None
+    prev_max_flips = None
 
-    choice = get_choice()
-    n = get_positive_int("How many coins to flip at once? ")
-    mode = get_mode()
+    while True:
+        print("=== Coin Flip Simulator ===\n")
 
-    max_flips = None
-    if mode == Mode.FIXED:
-        max_flips = get_positive_int("How many flips? ")
+        choice = get_choice(default=prev_choice)
+        n = get_positive_int("How many coins to flip at once?", default=prev_n)
+        mode = get_mode(default=prev_mode)
 
-    print(f"\nYour choice: {choice.name}")
-    print(f"Coins per flip: {n}")
-    if max_flips:
-        print(f"Number of flips: {max_flips}")
-    else:
-        print("Flipping until no coin lands on your choice.")
+        max_flips = None
+        if mode == Mode.FIXED:
+            max_flips = get_positive_int("How many flips?", default=prev_max_flips)
 
-    sim = simulate(choice, n, mode, max_flips)
-    results = []
-    for i, (result, count) in enumerate(sim):
-        display_flip(i+1, result, count, choice)
-        if parser.parse_args().pause:
-            input("\nPress any key to continue to the next flip.")
-        results.append(count)
+        prev_choice = choice
+        prev_n = n
+        prev_mode = mode
+        prev_max_flips = max_flips
 
-    if mode == Mode.PERSISTENT:
-        print(f"\nNo coins landed on {choice.name}! Stopping.")
-    
-    summary = summarize(results, choice)
+        print(f"\nYour choice: {choice.name}")
+        print(f"Coins per flip: {n}")
+        if max_flips:
+            print(f"Number of flips: {max_flips}")
+        else:
+            print("Flipping until no coin lands on your choice.")
 
-    print(f"\n=== Summary ===")
-    print(f"Total flips: {summary["total_flips"]}")
-    print(f"Total coins flipped: {summary["total_coins"]}")
-    print(f"Total landing on {choice.name}: {summary["total_matches"]}/{summary["total_coins"]} "
-          f"({summary["match_pct"]:.1f}%)")
-    print(f"Rounds won: {summary["rounds_won"]}/{summary["total_flips"]}")
+        sim = simulate(choice, n, mode, max_flips)
+        results = []
+        for i, (result, count) in enumerate(sim):
+            display_flip(i+1, result, count, choice)
+            if args.pause:
+                input("\nPress any key to continue to the next flip.")
+            results.append(count)
+
+        if mode == Mode.PERSISTENT:
+            print(f"\nNo coins landed on {choice.name}! Stopping.")
+
+        summary = summarize(results, choice)
+
+        print(f"\n=== Summary ===")
+        print(f"Total flips: {summary["total_flips"]}")
+        print(f"Total coins flipped: {summary["total_coins"]}")
+        print(f"Total landing on {choice.name}: {summary["total_matches"]}/{summary["total_coins"]} "
+              f"({summary["match_pct"]:.1f}%)")
+        print(f"Rounds won: {summary["rounds_won"]}/{summary["total_flips"]}")
+
+        again = input("\nRun again? (y/n) [y]: ").strip().lower()
+        if again in ("n", "no"):
+            break
+        print()
 
 
 if __name__ == "__main__":

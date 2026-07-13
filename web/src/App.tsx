@@ -83,7 +83,6 @@ function App() {
 
   const handleReset = useCallback(() => {
     setView("setup");
-    setConfig(null);
     setRounds([]);
     setCurrentRound(null);
     setDone(false);
@@ -99,7 +98,7 @@ function App() {
     <div className="app">
       <h1>MTG Coin Flip Simulator</h1>
 
-      {view === "setup" && <SetupPanel onStart={handleStart} />}
+      {view === "setup" && <SetupPanel onStart={handleStart} initialConfig={config} />}
 
       {view === "simulation" && config && (
         <>
