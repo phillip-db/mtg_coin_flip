@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { Coin, Mode, type SimConfig, type RoundResult, type Summary } from "./types";
+import { Mode, type SimConfig, type RoundResult, type Summary } from "./types";
 import { simulateAll, simulateOne, summarize, isWin } from "./logic/simulation";
 import SetupPanel from "./components/SetupPanel";
 import CurrentRound from "./components/CurrentRound";

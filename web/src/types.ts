@@ -1,12 +1,16 @@
-export enum Coin {
-  HEADS = "HEADS",
-  TAILS = "TAILS",
-}
+export const Coin = {
+  HEADS: "HEADS",
+  TAILS: "TAILS",
+} as const;
 
-export enum Mode {
-  FIXED = "FIXED",
-  PERSISTENT = "PERSISTENT",
-}
+export type Coin = (typeof Coin)[keyof typeof Coin];
+
+export const Mode = {
+  FIXED: "FIXED",
+  PERSISTENT: "PERSISTENT",
+} as const;
+
+export type Mode = (typeof Mode)[keyof typeof Mode];
 
 export interface RoundResult {
   results: Coin[];
