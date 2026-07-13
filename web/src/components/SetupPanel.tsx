@@ -1,35 +1,23 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Coin, Mode, type SimConfig } from "../types";
 
 interface SetupPanelProps {
   onStart: (config: SimConfig) => void;
   onSavePreset: (name: string, config: SimConfig) => void;
   initialConfig?: SimConfig | null;
-  loadedConfig?: SimConfig | null;
 }
 
 export default function SetupPanel({
   onStart,
   onSavePreset,
   initialConfig,
-  loadedConfig,
 }: SetupPanelProps) {
-  const init = loadedConfig ?? initialConfig;
-  const [choice, setChoice] = useState<Coin>(init?.choice ?? Coin.HEADS);
-  const [numCoins, setNumCoins] = useState(init?.numCoins ?? 1);
-  const [mode, setMode] = useState<Mode>(init?.mode ?? Mode.FIXED);
-  const [maxFlips, setMaxFlips] = useState(init?.maxFlips ?? 1);
-  const [pause, setPause] = useState(init?.pause ?? true);
+  const [choice, setChoice] = useState<Coin>(initialConfig?.choice ?? Coin.HEADS);
+  const [numCoins, setNumCoins] = useState(initialConfig?.numCoins ?? 1);
+  const [mode, setMode] = useState<Mode>(initialConfig?.mode ?? Mode.FIXED);
+  const [maxFlips, setMaxFlips] = useState(initialConfig?.maxFlips ?? 1);
+  const [pause, setPause] = useState(initialConfig?.pause ?? true);
   const [presetName, setPresetName] = useState("");
-
-  useEffect(() => {
-    if (!loadedConfig) return;
-    setChoice(loadedConfig.choice);
-    setNumCoins(loadedConfig.numCoins);
-    setMode(loadedConfig.mode);
-    setMaxFlips(loadedConfig.maxFlips ?? 1);
-    setPause(loadedConfig.pause);
-  }, [loadedConfig]);
 
   const currentConfig = (): SimConfig => ({
     choice,

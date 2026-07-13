@@ -20,7 +20,8 @@ function App() {
   const [done, setDone] = useState(false);
   const [summary, setSummary] = useState<Summary | null>(null);
   const [sessionGames, setSessionGames] = useState<GameRecord[]>([]);
-  const [loadedConfig, setLoadedConfig] = useState<SimConfig | null>(null);
+  const [setupKey, setSetupKey] = useState(0);
+  const [setupInitial, setSetupInitial] = useState<SimConfig | null>(null);
   const { presets, addPreset, deletePreset } = usePresets();
 
   const checkIsLast = useCallback(
@@ -45,6 +46,7 @@ function App() {
 
   const handleStart = useCallback((cfg: SimConfig) => {
     setConfig(cfg);
+    setSetupInitial(cfg);
     setRounds([]);
     setCurrentRound(null);
     setDone(false);
@@ -96,6 +98,12 @@ function App() {
     setCurrentRound(null);
     setDone(false);
     setSummary(null);
+    setSetupKey((k) => k + 1);
+  }, []);
+
+  const handleLoadPreset = useCallback((cfg: SimConfig) => {
+    setSetupInitial(cfg);
+    setSetupKey((k) => k + 1);
   }, []);
 
   const isLast =
@@ -110,14 +118,14 @@ function App() {
       {view === "setup" && (
         <div className="setup-layout">
           <SetupPanel
+            key={setupKey}
             onStart={handleStart}
             onSavePreset={addPreset}
-            initialConfig={config}
-            loadedConfig={loadedConfig}
+            initialConfig={setupInitial ?? config}
           />
           <PresetSidebar
             presets={presets}
-            onLoad={(cfg) => setLoadedConfig({ ...cfg })}
+            onLoad={handleLoadPreset}
             onRun={handleStart}
             onDelete={deletePreset}
           />
