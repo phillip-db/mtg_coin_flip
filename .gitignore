@@ -13,3 +13,5 @@ env/
 *.swp
 *.swo
 *~
+web/node_modules/
+web/dist/

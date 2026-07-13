@@ -1,8 +1,10 @@
 # MTG Coin Flip Simulator
 
-A coin flip simulator inspired by Magic: The Gathering. Choose heads or tails, flip a group of coins, and track your results across multiple rounds. Available as both a command-line tool and a graphical desktop app.
+A coin flip simulator inspired by Magic: The Gathering. Choose heads or tails, flip a group of coins, and track your results across multiple rounds. Available as a CLI, a desktop GUI, and a web app.
 
 ## Setup
+
+### Python (CLI + Desktop GUI)
 
 Requires **Python 3.10+**.
 
@@ -15,8 +17,17 @@ python -m venv .venv
 .venv\Scripts\activate   # Windows
 # source .venv/bin/activate  # macOS/Linux
 
-# Install dependencies (only needed for the GUI)
+# Install dependencies (only needed for the desktop GUI)
 pip install -r requirements.txt
+```
+
+### Web App
+
+Requires **Node.js 18+**.
+
+```bash
+cd web
+npm install
 ```
 
 ## CLI Version
@@ -108,14 +119,56 @@ Configure the simulation with the same options as the CLI:
 
 When pausing is disabled, the simulation runs instantly and the history log and summary are shown without the current-round panel.
 
+## Web Version
+
+A React + TypeScript frontend with the same features as the desktop GUI, running entirely in the browser. No Python required.
+
+### Running the Dev Server
+
+```bash
+cd web
+npm run dev
+```
+
+Open the URL printed by Vite (typically `http://localhost:5173`).
+
+The web app includes the same setup form, coin images (rendered as inline SVG), scrollable history log, and summary panel. The pause/unpause toggle works identically to the desktop GUI.
+
+### Production Build
+
+```bash
+cd web
+npm run build
+```
+
+The output lands in `web/dist/` and can be deployed as a static site to any host (GitHub Pages, Vercel, Netlify, etc.).
+
 ## Project Structure
 
 ```
 mtg_coin_flip/
-├── coin_flip.py      # Core logic, enums, CLI entry point
-├── gui.py            # Tkinter GUI
-├── requirements.txt  # Pillow dependency (GUI only)
-├── DESIGN.md         # GUI design document
+├── coin_flip.py          # Core logic, enums, CLI entry point
+├── gui.py                # Tkinter desktop GUI
+├── requirements.txt      # Pillow dependency (desktop GUI only)
+├── DESIGN.md             # GUI design document
 ├── .gitignore
-└── README.md
+├── README.md
+└── web/                  # React web app
+    ├── package.json
+    ├── index.html
+    ├── vite.config.ts
+    └── src/
+        ├── main.tsx
+        ├── App.tsx
+        ├── App.css
+        ├── index.css
+        ├── types.ts
+        ├── logic/
+        │   └── simulation.ts
+        └── components/
+            ├── CoinImage.tsx
+            ├── SetupPanel.tsx
+            ├── CurrentRound.tsx
+            ├── HistoryLog.tsx
+            └── SummaryPanel.tsx
 ```
