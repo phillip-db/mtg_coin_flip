@@ -178,3 +178,33 @@
 .summary-table td:first-child {
   color: #aaa;
 }
+
+/* Session History */
+
+.session-history {
+  opacity: 0.8;
+}
+
+.session-history h3 {
+  margin-bottom: 0.5rem;
+}
+
+.session-entries {
+  font-family: "Courier New", Courier, monospace;
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+
+.session-entry {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.session-choice {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  color: #aaa;
+}
