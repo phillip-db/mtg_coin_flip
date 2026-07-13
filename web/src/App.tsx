@@ -6,6 +6,8 @@ import CurrentRound from "./components/CurrentRound";
 import HistoryLog from "./components/HistoryLog";
 import SummaryPanel from "./components/SummaryPanel";
 import SessionHistory, { type GameRecord } from "./components/SessionHistory";
+import PresetSidebar from "./components/PresetSidebar";
+import usePresets from "./hooks/usePresets";
 import "./App.css";
 
 type View = "setup" | "simulation";
@@ -18,6 +20,8 @@ function App() {
   const [done, setDone] = useState(false);
   const [summary, setSummary] = useState<Summary | null>(null);
   const [sessionGames, setSessionGames] = useState<GameRecord[]>([]);
+  const [loadedConfig, setLoadedConfig] = useState<SimConfig | null>(null);
+  const { presets, addPreset, deletePreset } = usePresets();
 
   const checkIsLast = useCallback(
     (allRounds: RoundResult[], latest: RoundResult, cfg: SimConfig) => {
@@ -103,7 +107,22 @@ function App() {
     <div className="app">
       <h1>MTG Coin Flip Simulator</h1>
 
-      {view === "setup" && <SetupPanel onStart={handleStart} initialConfig={config} />}
+      {view === "setup" && (
+        <div className="setup-layout">
+          <SetupPanel
+            onStart={handleStart}
+            onSavePreset={addPreset}
+            initialConfig={config}
+            loadedConfig={loadedConfig}
+          />
+          <PresetSidebar
+            presets={presets}
+            onLoad={(cfg) => setLoadedConfig({ ...cfg })}
+            onRun={handleStart}
+            onDelete={deletePreset}
+          />
+        </div>
+      )}
 
       {view === "simulation" && config && (
         <>

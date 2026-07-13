@@ -32,3 +32,9 @@ export interface SimConfig {
   maxFlips: number | null;
   pause: boolean;
 }
+
+export interface Preset {
+  id: string;
+  name: string;
+  config: SimConfig;
+}

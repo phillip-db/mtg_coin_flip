@@ -1,27 +1,54 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Coin, Mode, type SimConfig } from "../types";
 
 interface SetupPanelProps {
   onStart: (config: SimConfig) => void;
+  onSavePreset: (name: string, config: SimConfig) => void;
   initialConfig?: SimConfig | null;
+  loadedConfig?: SimConfig | null;
 }
 
-export default function SetupPanel({ onStart, initialConfig }: SetupPanelProps) {
-  const [choice, setChoice] = useState<Coin>(initialConfig?.choice ?? Coin.HEADS);
-  const [numCoins, setNumCoins] = useState(initialConfig?.numCoins ?? 1);
-  const [mode, setMode] = useState<Mode>(initialConfig?.mode ?? Mode.FIXED);
-  const [maxFlips, setMaxFlips] = useState(initialConfig?.maxFlips ?? 1);
-  const [pause, setPause] = useState(initialConfig?.pause ?? true);
+export default function SetupPanel({
+  onStart,
+  onSavePreset,
+  initialConfig,
+  loadedConfig,
+}: SetupPanelProps) {
+  const init = loadedConfig ?? initialConfig;
+  const [choice, setChoice] = useState<Coin>(init?.choice ?? Coin.HEADS);
+  const [numCoins, setNumCoins] = useState(init?.numCoins ?? 1);
+  const [mode, setMode] = useState<Mode>(init?.mode ?? Mode.FIXED);
+  const [maxFlips, setMaxFlips] = useState(init?.maxFlips ?? 1);
+  const [pause, setPause] = useState(init?.pause ?? true);
+  const [presetName, setPresetName] = useState("");
+
+  useEffect(() => {
+    if (!loadedConfig) return;
+    setChoice(loadedConfig.choice);
+    setNumCoins(loadedConfig.numCoins);
+    setMode(loadedConfig.mode);
+    setMaxFlips(loadedConfig.maxFlips ?? 1);
+    setPause(loadedConfig.pause);
+  }, [loadedConfig]);
+
+  const currentConfig = (): SimConfig => ({
+    choice,
+    numCoins,
+    mode,
+    maxFlips: mode === Mode.FIXED ? maxFlips : null,
+    pause,
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onStart({
-      choice,
-      numCoins,
-      mode,
-      maxFlips: mode === Mode.FIXED ? maxFlips : null,
-      pause,
-    });
+    onStart(currentConfig());
+  };
+
+  const handleSavePreset = () => {
+    const name = presetName.trim();
+    if (!name) return;
+    onSavePreset(name, currentConfig());
+    setPresetName("");
   };
 
   return (
@@ -108,6 +135,24 @@ export default function SetupPanel({ onStart, initialConfig }: SetupPanelProps) 
       <button type="submit" className="btn-primary">
         Start Flipping
       </button>
+
+      <div className="save-preset">
+        <input
+          type="text"
+          placeholder="Preset name..."
+          value={presetName}
+          onChange={(e) => setPresetName(e.target.value)}
+          onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleSavePreset(); } }}
+        />
+        <button
+          type="button"
+          className="btn-small"
+          onClick={handleSavePreset}
+          disabled={!presetName.trim()}
+        >
+          Save Preset
+        </button>
+      </div>
     </form>
   );
 }
