@@ -5,6 +5,7 @@ import SetupPanel from "./components/SetupPanel";
 import CurrentRound from "./components/CurrentRound";
 import HistoryLog from "./components/HistoryLog";
 import SummaryPanel from "./components/SummaryPanel";
+import SessionHistory, { type GameRecord } from "./components/SessionHistory";
 import "./App.css";
 
 type View = "setup" | "simulation";
@@ -16,6 +17,7 @@ function App() {
   const [currentRound, setCurrentRound] = useState<RoundResult | null>(null);
   const [done, setDone] = useState(false);
   const [summary, setSummary] = useState<Summary | null>(null);
+  const [sessionGames, setSessionGames] = useState<GameRecord[]>([]);
 
   const checkIsLast = useCallback(
     (allRounds: RoundResult[], latest: RoundResult, cfg: SimConfig) => {
@@ -29,6 +31,13 @@ function App() {
     },
     []
   );
+
+  const recordGame = useCallback((s: Summary, choice: SimConfig["choice"]) => {
+    setSessionGames((prev) => [
+      ...prev,
+      { roundsWon: s.roundsWon, totalFlips: s.totalFlips, choice },
+    ]);
+  }, []);
 
   const handleStart = useCallback((cfg: SimConfig) => {
     setConfig(cfg);
@@ -48,38 +57,34 @@ function App() {
       const s = summarize(allRounds, cfg.choice);
       setSummary(s);
       setDone(true);
+      recordGame(s, cfg.choice);
     }
-  }, []);
+  }, [recordGame]);
 
   const handleNext = useCallback(() => {
     if (!config) return;
     const round = simulateOne(config.numCoins);
-    setRounds((prev) => {
-      const updated = [...prev, round];
-
-      if (checkIsLast(updated, round, config)) {
-        const won = isWin(round.counts, config.choice);
-        if (config.mode === Mode.PERSISTENT && !won) {
-          const s = summarize(updated, config.choice);
-          setSummary(s);
-          setDone(true);
-        }
-      }
-
-      return updated;
-    });
+    const updated = [...rounds, round];
+    setRounds(updated);
     setCurrentRound(round);
-  }, [config, checkIsLast]);
+
+    if (checkIsLast(updated, round, config)) {
+      if (config.mode === Mode.PERSISTENT && !isWin(round.counts, config.choice)) {
+        const s = summarize(updated, config.choice);
+        setSummary(s);
+        setDone(true);
+        recordGame(s, config.choice);
+      }
+    }
+  }, [config, rounds, checkIsLast, recordGame]);
 
   const handleFinish = useCallback(() => {
     if (!config) return;
-    setRounds((prev) => {
-      const s = summarize(prev, config.choice);
-      setSummary(s);
-      return prev;
-    });
+    const s = summarize(rounds, config.choice);
+    setSummary(s);
     setDone(true);
-  }, [config]);
+    recordGame(s, config.choice);
+  }, [config, rounds, recordGame]);
 
   const handleReset = useCallback(() => {
     setView("setup");
@@ -122,6 +127,8 @@ function App() {
           )}
         </>
       )}
+
+      <SessionHistory games={sessionGames} />
     </div>
   );
 }
