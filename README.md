@@ -121,6 +121,8 @@ When pausing is disabled, the simulation runs instantly and the history log and 
 
 Clicking "Reset" returns to the setup screen with your previous settings pre-filled.
 
+A session history panel is visible across all screens, showing the result of each completed game (flips won and the player's coin choice) for the current session.
+
 ## Web Version
 
 A React + TypeScript frontend with the same features as the desktop GUI, running entirely in the browser. No Python required.
@@ -134,7 +136,7 @@ npm run dev
 
 The app is configured with a base path for GitHub Pages deployment, so the local URL includes the project name. Open `http://localhost:5173/mtg_coin_flip/` (note the trailing slash).
 
-The web app includes the same setup form, coin images (rendered as inline SVG), scrollable history log, and summary panel. The pause/unpause toggle works identically to the desktop GUI. Clicking "Reset" pre-fills the setup form with your previous settings.
+The web app includes the same setup form, coin images (rendered as inline SVG), scrollable history log, and summary panel. The pause/unpause toggle works identically to the desktop GUI. Clicking "Reset" pre-fills the setup form with your previous settings. A session history panel persists across all screens, tracking flips won and the player's coin choice for each completed game.
 
 ### Production Build
 

@@ -14,13 +14,17 @@ class App:
         self.frame_setup = tk.Frame(root)
         self.frame_simulation = tk.Frame(root)
 
+        self.game_count = 0
+
         self._build_setup_panel()
         self._build_simulation_panel()
+        self._build_session_panel()
 
         self.show_frame(self.frame_setup)
 
     def _generate_coin_images(self):
         images = {}
+        small = {}
         for coin, letter, bg in [(Coin.HEADS, "H", "#FFD700"), (Coin.TAILS, "T", "#C0C0C0")]:
             img = Image.new("RGBA", (80, 80), (0, 0, 0, 0))
             draw = ImageDraw.Draw(img)
@@ -36,6 +40,9 @@ class App:
             tw = bbox[2] - bbox[0]
             draw.text(((80 - tw) // 2, (80 - bbox[3]) // 2), letter, fill="#333333", font=font)
             images[coin] = ImageTk.PhotoImage(img)
+            small[coin] = ImageTk.PhotoImage(img.resize((16, 16),
+                                                        Image.LANCZOS))
+        self.coin_images_small = small
         return images
 
     def _build_setup_panel(self):
@@ -134,6 +141,13 @@ class App:
         tk.Button(self.panel_summary, text="Reset",
                   command=self._reset).pack(pady=(0, 5))
 
+    def _build_session_panel(self):
+        self.panel_session = tk.LabelFrame(self.root, text="Session")
+        self.session_text = tk.Text(self.panel_session, height=4,
+                                    state="disabled", wrap="none",
+                                    font=("Courier", 9))
+        self.session_text.pack(fill="both", expand=True, padx=5, pady=5)
+
     def _on_mode_change(self):
         if self.mode_var.get() == Mode.FIXED.value:
             self.num_flips_opt.grid(row=3, column=0)
@@ -143,7 +157,10 @@ class App:
     def show_frame(self, frame):
         for f in (self.frame_setup, self.frame_simulation):
             f.pack_forget()
+        self.panel_session.pack_forget()
         frame.pack(fill="both", expand=True, padx=20, pady=10)
+        if self.game_count > 0:
+            self.panel_session.pack(fill="x", padx=20, pady=(0, 10))
 
     def _start_simulation(self):
         self.current_choice = Coin(self.choice.get())
@@ -256,6 +273,20 @@ class App:
         self.panel_current.grid_forget()
         self.btn_next.grid_forget()
         self.panel_summary.grid(row=3, column=0, sticky="ew", pady=(0, 10))
+        self._record_game(summary)
+
+    def _record_game(self, summary):
+        self.game_count += 1
+        line = (f"Game {self.game_count}: "
+                f"{summary['rounds_won']}/{summary['total_flips']} flips won  ")
+        self.session_text.config(state="normal")
+        self.session_text.insert("end", line)
+        self.session_text.image_create("end",
+                                       image=self.coin_images_small[self.current_choice])
+        self.session_text.insert("end", f" {self.current_choice.name}\n")
+        self.session_text.see("end")
+        self.session_text.config(state="disabled")
+        self.panel_session.pack(fill="x", padx=20, pady=(0, 10))
 
     def _reset(self):
         self.sim_done = False
