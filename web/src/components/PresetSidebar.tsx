@@ -7,13 +7,26 @@ interface PresetSidebarProps {
   onDelete: (id: string) => void;
 }
 
+function normalizeConfig(config: SimConfig): SimConfig {
+  return {
+    ...config,
+    activeCardName: config.activeCardName ?? (config as Record<string, unknown>).selectedCardName as string | null ?? null,
+    supportCardNames: config.supportCardNames ?? [],
+  };
+}
+
 function describeConfig(config: SimConfig): string {
   const choice = config.choice === Coin.HEADS ? "Heads" : "Tails";
   const mode = config.mode === Mode.FIXED
     ? `${config.maxFlips} flips`
     : "Continuous";
   const pause = config.pause ? "Paused" : "Instant";
-  return `${choice}, ${config.numCoins} coin${config.numCoins > 1 ? "s" : ""}, ${mode}, ${pause}`;
+  let base = `${choice}, ${config.numCoins} coin${config.numCoins > 1 ? "s" : ""}, ${mode}, ${pause}`;
+  const active = config.activeCardName ?? (config as Record<string, unknown>).selectedCardName as string | undefined;
+  if (active) base += ` | ${active}`;
+  const supports = config.supportCardNames ?? [];
+  if (supports.length > 0) base += ` + ${supports.length} support`;
+  return base;
 }
 
 export default function PresetSidebar({
@@ -35,37 +48,40 @@ export default function PresetSidebar({
     <div className="panel preset-sidebar">
       <h3>Spellbook</h3>
       <div className="preset-list">
-        {presets.map((p) => (
-          <div key={p.id} className="preset-item">
-            <div className="preset-info">
-              <span className="preset-name">{p.name}</span>
-              <span className="preset-desc">{describeConfig(p.config)}</span>
+        {presets.map((p) => {
+          const cfg = normalizeConfig(p.config);
+          return (
+            <div key={p.id} className="preset-item">
+              <div className="preset-info">
+                <span className="preset-name">{p.name}</span>
+                <span className="preset-desc">{describeConfig(cfg)}</span>
+              </div>
+              <div className="preset-actions">
+                <button
+                  className="btn-small"
+                  onClick={() => onLoad(cfg)}
+                  title="Load into setup form"
+                >
+                  Load
+                </button>
+                <button
+                  className="btn-small btn-run"
+                  onClick={() => onRun(cfg)}
+                  title="Run immediately"
+                >
+                  Run
+                </button>
+                <button
+                  className="btn-small btn-delete"
+                  onClick={() => onDelete(p.id)}
+                  title="Delete preset"
+                >
+                  &times;
+                </button>
+              </div>
             </div>
-            <div className="preset-actions">
-              <button
-                className="btn-small"
-                onClick={() => onLoad(p.config)}
-                title="Load into setup form"
-              >
-                Load
-              </button>
-              <button
-                className="btn-small btn-run"
-                onClick={() => onRun(p.config)}
-                title="Run immediately"
-              >
-                Run
-              </button>
-              <button
-                className="btn-small btn-delete"
-                onClick={() => onDelete(p.id)}
-                title="Delete preset"
-              >
-                &times;
-              </button>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

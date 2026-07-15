@@ -31,6 +31,8 @@ export interface SimConfig {
   mode: Mode;
   maxFlips: number | null;
   pause: boolean;
+  activeCardName: string | null;
+  supportCardNames: string[];
 }
 
 export interface Preset {

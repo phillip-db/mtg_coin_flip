@@ -23,6 +23,8 @@ function App() {
   const [sessionGames, setSessionGames] = useState<GameRecord[]>([]);
   const [setupKey, setSetupKey] = useState(0);
   const [setupInitial, setSetupInitial] = useState<SimConfig | null>(null);
+  const [activeCardName, setActiveCardName] = useState<string | null>(null);
+  const [supportCardNames, setSupportCardNames] = useState<string[]>([]);
   const { presets, addPreset, deletePreset } = usePresets();
 
   const checkIsLast = useCallback(
@@ -38,16 +40,24 @@ function App() {
     []
   );
 
-  const recordGame = useCallback((s: Summary, choice: SimConfig["choice"]) => {
+  const recordGame = useCallback((s: Summary, cfg: SimConfig) => {
     setSessionGames((prev) => [
       ...prev,
-      { roundsWon: s.roundsWon, totalFlips: s.totalFlips, choice },
+      {
+        roundsWon: s.roundsWon,
+        totalFlips: s.totalFlips,
+        choice: cfg.choice,
+        activeCardName: cfg.activeCardName,
+        supportCardNames: cfg.supportCardNames,
+      },
     ]);
   }, []);
 
   const handleStart = useCallback((cfg: SimConfig) => {
     setConfig(cfg);
     setSetupInitial(cfg);
+    setActiveCardName(cfg.activeCardName);
+    setSupportCardNames(cfg.supportCardNames);
     setRounds([]);
     setCurrentRound(null);
     setDone(false);
@@ -64,7 +74,7 @@ function App() {
       const s = summarize(allRounds, cfg.choice);
       setSummary(s);
       setDone(true);
-      recordGame(s, cfg.choice);
+      recordGame(s, cfg);
     }
   }, [recordGame]);
 
@@ -80,7 +90,7 @@ function App() {
         const s = summarize(updated, config.choice);
         setSummary(s);
         setDone(true);
-        recordGame(s, config.choice);
+        recordGame(s, config);
       }
     }
   }, [config, rounds, checkIsLast, recordGame]);
@@ -90,7 +100,7 @@ function App() {
     const s = summarize(rounds, config.choice);
     setSummary(s);
     setDone(true);
-    recordGame(s, config.choice);
+    recordGame(s, config);
   }, [config, rounds, recordGame]);
 
   const handleReset = useCallback(() => {
@@ -104,7 +114,15 @@ function App() {
 
   const handleLoadPreset = useCallback((cfg: SimConfig) => {
     setSetupInitial(cfg);
+    setActiveCardName(cfg.activeCardName);
+    setSupportCardNames(cfg.supportCardNames ?? []);
     setSetupKey((k) => k + 1);
+  }, []);
+
+  const handleToggleSupport = useCallback((name: string) => {
+    setSupportCardNames((prev) =>
+      prev.includes(name) ? prev.filter((n) => n !== name) : [...prev, name]
+    );
   }, []);
 
   const isLast =
@@ -114,7 +132,12 @@ function App() {
 
   return (
     <div className="app-layout">
-      <CardSidebar />
+      <CardSidebar
+        activeCardName={activeCardName}
+        supportCardNames={supportCardNames}
+        onSelectActive={setActiveCardName}
+        onToggleSupport={handleToggleSupport}
+      />
 
       <div className="app">
         <h1>MTG Coin Flip Simulator</h1>
@@ -127,6 +150,12 @@ function App() {
               onStart={handleStart}
               onSavePreset={addPreset}
               initialConfig={setupInitial ?? config}
+              activeCardName={activeCardName}
+              supportCardNames={supportCardNames}
+              onClearActive={() => setActiveCardName(null)}
+              onRemoveSupport={(name) =>
+                setSupportCardNames((prev) => prev.filter((n) => n !== name))
+              }
             />
             <PresetSidebar
               presets={presets}
@@ -155,7 +184,12 @@ function App() {
             )}
 
             {done && summary && (
-              <SummaryPanel summary={summary} onReset={handleReset} />
+              <SummaryPanel
+                summary={summary}
+                onReset={handleReset}
+                activeCardName={config.activeCardName}
+                supportCardNames={config.supportCardNames}
+              />
             )}
           </>
         )}

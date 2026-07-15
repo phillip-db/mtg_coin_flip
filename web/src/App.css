@@ -59,8 +59,9 @@
   color: #d4c4a0;
   text-decoration: none;
   border-radius: 3px;
-  transition: background 0.12s, color 0.12s;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
   line-height: 1.3;
+  border: 1px solid transparent;
 }
 
 .card-sidebar-link:hover {
@@ -68,14 +69,57 @@
   color: #e8d5a3;
 }
 
-.card-sidebar-name {
+.card-sidebar-link.card-selected {
+  background: #3a2e18;
+  border-color: #c9a84c;
+  color: #e8d5a3;
+}
+
+.card-section-header {
+  font-size: 0.65rem;
+  font-variant: small-caps;
+  letter-spacing: 0.08em;
+  color: #8b7340;
+  padding: 0.35rem 0.2rem 0.15rem;
+  border-bottom: 1px solid #3a3020;
+  margin-top: 0.3rem;
+}
+
+.card-section-header:first-child {
+  margin-top: 0;
+}
+
+.card-select-label {
   display: flex;
   align-items: center;
   gap: 0.3rem;
   min-width: 0;
+  flex: 1;
+  cursor: pointer;
+  margin: 0;
+}
+
+.card-select-label input[type="radio"],
+.card-select-label input[type="checkbox"] {
+  flex-shrink: 0;
+  accent-color: #c9a84c;
+  margin: 0;
+}
+
+.card-link-name {
+  color: inherit;
+  text-decoration: none;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.card-link-name:hover {
+  text-decoration: underline;
+  color: #c9a84c;
 }
 
 .card-sidebar-filter {
@@ -521,6 +565,15 @@
 }
 
 .session-entry {
+  padding: 0.3rem 0;
+  border-bottom: 1px solid #2a2118;
+}
+
+.session-entry:last-child {
+  border-bottom: none;
+}
+
+.session-entry-main {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -533,3 +586,171 @@
   font-size: 0.8rem;
   color: #9a8b6e;
 }
+
+.session-card-outcome {
+  margin-top: 0.2rem;
+  padding-left: 0.5rem;
+  border-left: 2px solid #5c4d2a;
+  font-family: "Crimson Text", Georgia, serif;
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
+
+.session-card-name {
+  color: #c9a84c;
+  font-weight: 600;
+  display: block;
+}
+
+.session-card-result {
+  color: #9a8b6e;
+  display: block;
+}
+
+/* Locked field indicator */
+
+.field-lock {
+  font-size: 0.75rem;
+  color: #9a8b6e;
+  flex-shrink: 0;
+}
+
+.field input:disabled,
+fieldset:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+fieldset:disabled label {
+  cursor: not-allowed;
+}
+
+/* Selected Cards Display (Setup Panel) */
+
+.selected-cards-display {
+  margin-top: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.selected-card-item {
+  padding: 0.65rem;
+  background: #1e1813;
+  border: 1px solid #5c4d2a;
+  border-radius: 6px;
+}
+
+.selected-card-active {
+  border-color: #c9a84c;
+}
+
+.selected-card-support {
+  border-color: #5fad56;
+}
+
+.selected-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.25rem;
+}
+
+.selected-card-label {
+  font-size: 0.75rem;
+  color: #9a8b6e;
+  font-variant: small-caps;
+  letter-spacing: 0.05em;
+}
+
+.selected-card-name {
+  font-family: "Cinzel", "Palatino Linotype", serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: #e8d5a3;
+}
+
+.selected-card-effect {
+  margin-top: 0.35rem;
+  font-size: 0.8rem;
+  font-style: italic;
+  color: #9a8b6e;
+  line-height: 1.4;
+}
+
+.support-card-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 0.25rem;
+}
+
+/* Card Outcome (Summary Panel) */
+
+.card-outcome {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: #1e1813;
+  border: 1px solid #8b7340;
+  border-radius: 6px;
+  text-align: left;
+}
+
+.card-outcome h4 {
+  font-family: "Cinzel", "Palatino Linotype", serif;
+  font-weight: 700;
+  font-size: 1rem;
+  color: #c9a84c;
+  margin-bottom: 0.35rem;
+  text-align: center;
+}
+
+.card-outcome-effect {
+  font-size: 0.85rem;
+  font-style: italic;
+  color: #9a8b6e;
+  margin-bottom: 0.5rem;
+  line-height: 1.4;
+}
+
+.card-outcome-result {
+  font-size: 0.9rem;
+  color: #e8d5a3;
+  line-height: 1.5;
+  padding: 0.4rem 0.5rem;
+  background: #2a2118;
+  border-radius: 4px;
+  border-left: 3px solid #c9a84c;
+}
+
+.card-outcome-support {
+  margin-top: 0.75rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid #3a3020;
+}
+
+.card-outcome-support h4 {
+  font-size: 0.85rem;
+  color: #5fad56;
+}
+
+.card-outcome-support-line {
+  font-size: 0.85rem;
+  color: #d4c4a0;
+  padding: 0.25rem 0.5rem;
+  margin-top: 0.25rem;
+  border-left: 2px solid #5fad56;
+  line-height: 1.4;
+}
+
+.session-card-support {
+  color: #7ab872;
+  display: block;
+  font-size: 0.75rem;
+}
+
+/* Keyword highlights */
+.hl-stat { color: #5fad56; font-weight: 600; }
+.hl-damage { color: #e07050; font-weight: 600; }
+.hl-advantage { color: #6eb5e0; font-weight: 600; }
+.hl-mana { color: #c9a84c; font-weight: 600; }
