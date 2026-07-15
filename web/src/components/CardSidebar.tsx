@@ -1,7 +1,20 @@
 import { useState, useRef, useMemo } from "react";
 import coinFlipCards, { type CoinFlipCard } from "../data/coinFlipCards";
+import { getCardCategory } from "../data/cardEffects";
 
-export default function CardSidebar() {
+interface CardSidebarProps {
+  activeCardName: string | null;
+  supportCardNames: string[];
+  onSelectActive: (name: string | null) => void;
+  onToggleSupport: (name: string) => void;
+}
+
+export default function CardSidebar({
+  activeCardName,
+  supportCardNames,
+  onSelectActive,
+  onToggleSupport,
+}: CardSidebarProps) {
   const [hoveredCard, setHoveredCard] = useState<CoinFlipCard | null>(null);
   const [tooltipY, setTooltipY] = useState(0);
   const [commanderOnly, setCommanderOnly] = useState(false);
@@ -9,10 +22,20 @@ export default function CardSidebar() {
 
   const TOOLTIP_HEIGHT = 279;
 
-  const visibleCards = useMemo(
-    () => commanderOnly ? coinFlipCards.filter((c) => c.commanderLegal) : coinFlipCards,
-    [commanderOnly],
-  );
+  const allCards = useMemo(() => {
+    const filtered = commanderOnly
+      ? coinFlipCards.filter((c) => c.commanderLegal)
+      : coinFlipCards;
+
+    const supporting: CoinFlipCard[] = [];
+    const active: CoinFlipCard[] = [];
+    for (const card of filtered) {
+      const cat = getCardCategory(card.name);
+      if (cat === "supporting") supporting.push(card);
+      else active.push(card);
+    }
+    return { supporting, active };
+  }, [commanderOnly]);
 
   const handleMouseEnter = (card: CoinFlipCard, e: React.MouseEvent) => {
     setHoveredCard(card);
@@ -23,6 +46,54 @@ export default function CardSidebar() {
       const maxTop = window.innerHeight - sidebarRect.top - TOOLTIP_HEIGHT - 8;
       setTooltipY(Math.max(0, Math.min(idealTop, maxTop)));
     }
+  };
+
+  const renderCard = (card: CoinFlipCard, type: "active" | "supporting") => {
+    const isActive = type === "active";
+    const isSelected = isActive
+      ? activeCardName === card.name
+      : supportCardNames.includes(card.name);
+
+    return (
+      <div
+        key={card.name}
+        className={`card-sidebar-link${isSelected ? " card-selected" : ""}`}
+        onMouseEnter={(e) => handleMouseEnter(card, e)}
+        onMouseLeave={() => setHoveredCard(null)}
+      >
+        <label className="card-select-label">
+          <input
+            type={isActive ? "radio" : "checkbox"}
+            name={isActive ? "active-card" : undefined}
+            checked={isSelected}
+            onChange={() =>
+              isActive
+                ? onSelectActive(card.name)
+                : onToggleSupport(card.name)
+            }
+            onClick={(e) => {
+              if (isActive && isSelected) {
+                e.preventDefault();
+                onSelectActive(null);
+              }
+            }}
+          />
+          <a
+            href={card.scryfallUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="card-link-name"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {card.canBeCommander && (
+              <span className="card-cmdr-badge" title="Can be your commander">&#9813;</span>
+            )}
+            {card.name}
+          </a>
+        </label>
+        <span className="card-mv" title="Mana value">{card.manaValue}</span>
+      </div>
+    );
   };
 
   return (
@@ -39,32 +110,19 @@ export default function CardSidebar() {
       </label>
 
       <div className="card-sidebar-list">
-        {visibleCards.map((card) => (
-          <a
-            key={card.name}
-            href={card.scryfallUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="card-sidebar-link"
-            onMouseEnter={(e) => handleMouseEnter(card, e)}
-            onMouseLeave={() => setHoveredCard(null)}
-          >
-            <span className="card-sidebar-name">
-              {card.canBeCommander && (
-                <span className="card-cmdr-badge" title="Can be your commander">&#9813;</span>
-              )}
-              {card.name}
-            </span>
-            <span className="card-mv" title="Mana value">{card.manaValue}</span>
-          </a>
-        ))}
+        {allCards.supporting.length > 0 && (
+          <>
+            <div className="card-section-header">Supporting</div>
+            {allCards.supporting.map((c) => renderCard(c, "supporting"))}
+          </>
+        )}
+
+        <div className="card-section-header">Active</div>
+        {allCards.active.map((c) => renderCard(c, "active"))}
       </div>
 
       {hoveredCard && (
-        <div
-          className="card-tooltip"
-          style={{ top: tooltipY }}
-        >
+        <div className="card-tooltip" style={{ top: tooltipY }}>
           <img
             src={hoveredCard.imageUrl}
             alt={hoveredCard.name}
