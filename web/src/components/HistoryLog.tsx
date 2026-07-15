@@ -16,7 +16,7 @@ export default function HistoryLog({ rounds, choice }: HistoryLogProps) {
 
   return (
     <div className="panel history-log">
-      <h3>History</h3>
+      <h3>Chronicle</h3>
       <div className="history-scroll">
         {rounds.map((r, i) => {
           const matches = r.counts[choice];

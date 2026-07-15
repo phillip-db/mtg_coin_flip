@@ -25,7 +25,7 @@ export default function CurrentRound({
 
   return (
     <div className="panel current-round">
-      <h3>--- Round {roundNum} ---</h3>
+      <h3>Flip {roundNum}</h3>
       <div className="coin-row">
         {result.results.map((coin, i) => (
           <CoinImage key={i} coin={coin} />
@@ -35,10 +35,10 @@ export default function CurrentRound({
         {matches}/{total} landed on {choice}
       </p>
       <p className={`win-label ${won ? "won" : "lost"}`}>
-        {won ? "\u2713 ROUND WON" : "\u2717 ROUND LOST"}
+        {won ? "Victory!" : "Defeat!"}
       </p>
       <button className="btn-primary" onClick={isLast ? onFinish : onNext}>
-        {isLast ? "Finish" : "Next Flip"}
+        {isLast ? "Reveal Fate" : "Flip Again"}
       </button>
     </div>
   );

@@ -114,6 +114,7 @@ function App() {
   return (
     <div className="app">
       <h1>MTG Coin Flip Simulator</h1>
+      <hr className="title-divider" />
 
       {view === "setup" && (
         <div className="setup-layout">

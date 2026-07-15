@@ -41,7 +41,7 @@ export default function SetupPanel({
 
   return (
     <form className="panel setup-panel" onSubmit={handleSubmit}>
-      <h2>Setup Simulation</h2>
+      <h2>Prepare Your Ritual</h2>
 
       <fieldset>
         <legend>Choice</legend>
@@ -121,7 +121,7 @@ export default function SetupPanel({
       </label>
 
       <button type="submit" className="btn-primary">
-        Start Flipping
+        Cast the Coins
       </button>
 
       <div className="save-preset">
