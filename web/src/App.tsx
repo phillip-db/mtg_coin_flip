@@ -7,6 +7,7 @@ import HistoryLog from "./components/HistoryLog";
 import SummaryPanel from "./components/SummaryPanel";
 import SessionHistory, { type GameRecord } from "./components/SessionHistory";
 import PresetSidebar from "./components/PresetSidebar";
+import CardSidebar from "./components/CardSidebar";
 import usePresets from "./hooks/usePresets";
 import "./App.css";
 
@@ -112,51 +113,55 @@ function App() {
       : false;
 
   return (
-    <div className="app">
-      <h1>MTG Coin Flip Simulator</h1>
-      <hr className="title-divider" />
+    <div className="app-layout">
+      <CardSidebar />
 
-      {view === "setup" && (
-        <div className="setup-layout">
-          <SetupPanel
-            key={setupKey}
-            onStart={handleStart}
-            onSavePreset={addPreset}
-            initialConfig={setupInitial ?? config}
-          />
-          <PresetSidebar
-            presets={presets}
-            onLoad={handleLoadPreset}
-            onRun={handleStart}
-            onDelete={deletePreset}
-          />
-        </div>
-      )}
+      <div className="app">
+        <h1>MTG Coin Flip Simulator</h1>
+        <hr className="title-divider" />
 
-      {view === "simulation" && config && (
-        <>
-          {config.pause && currentRound && !done && (
-            <CurrentRound
-              roundNum={rounds.length}
-              result={currentRound}
-              choice={config.choice}
-              isLast={isLast}
-              onNext={handleNext}
-              onFinish={handleFinish}
+        {view === "setup" && (
+          <div className="setup-layout">
+            <SetupPanel
+              key={setupKey}
+              onStart={handleStart}
+              onSavePreset={addPreset}
+              initialConfig={setupInitial ?? config}
             />
-          )}
+            <PresetSidebar
+              presets={presets}
+              onLoad={handleLoadPreset}
+              onRun={handleStart}
+              onDelete={deletePreset}
+            />
+          </div>
+        )}
 
-          {rounds.length > 0 && (
-            <HistoryLog rounds={rounds} choice={config.choice} />
-          )}
+        {view === "simulation" && config && (
+          <>
+            {config.pause && currentRound && !done && (
+              <CurrentRound
+                roundNum={rounds.length}
+                result={currentRound}
+                choice={config.choice}
+                isLast={isLast}
+                onNext={handleNext}
+                onFinish={handleFinish}
+              />
+            )}
 
-          {done && summary && (
-            <SummaryPanel summary={summary} onReset={handleReset} />
-          )}
-        </>
-      )}
+            {rounds.length > 0 && (
+              <HistoryLog rounds={rounds} choice={config.choice} />
+            )}
 
-      <SessionHistory games={sessionGames} />
+            {done && summary && (
+              <SummaryPanel summary={summary} onReset={handleReset} />
+            )}
+          </>
+        )}
+
+        <SessionHistory games={sessionGames} />
+      </div>
     </div>
   );
 }
