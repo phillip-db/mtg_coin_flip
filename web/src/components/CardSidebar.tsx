@@ -6,12 +6,16 @@ export default function CardSidebar() {
   const [tooltipY, setTooltipY] = useState(0);
   const sidebarRef = useRef<HTMLDivElement>(null);
 
+  const TOOLTIP_HEIGHT = 279;
+
   const handleMouseEnter = (card: CoinFlipCard, e: React.MouseEvent) => {
     setHoveredCard(card);
     if (sidebarRef.current) {
       const sidebarRect = sidebarRef.current.getBoundingClientRect();
       const itemRect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-      setTooltipY(itemRect.top - sidebarRect.top);
+      const idealTop = itemRect.top - sidebarRect.top;
+      const maxTop = window.innerHeight - sidebarRect.top - TOOLTIP_HEIGHT - 8;
+      setTooltipY(Math.max(0, Math.min(idealTop, maxTop)));
     }
   };
 
