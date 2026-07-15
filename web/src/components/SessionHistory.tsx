@@ -18,7 +18,7 @@ export default function SessionHistory({ games }: SessionHistoryProps) {
 
   return (
     <div className="panel session-history">
-      <h3>Session</h3>
+      <h3>Campaign Record</h3>
       <div className="session-entries">
         {games.map((g, i) => (
           <div key={i} className="session-entry">

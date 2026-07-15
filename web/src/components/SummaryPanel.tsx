@@ -8,7 +8,7 @@ interface SummaryPanelProps {
 export default function SummaryPanel({ summary, onReset }: SummaryPanelProps) {
   return (
     <div className="panel summary-panel">
-      <h3>Summary</h3>
+      <h3>Final Tally</h3>
       <table className="summary-table">
         <tbody>
           <tr>
@@ -35,7 +35,7 @@ export default function SummaryPanel({ summary, onReset }: SummaryPanelProps) {
         </tbody>
       </table>
       <button className="btn-primary" onClick={onReset}>
-        Reset
+        Begin Anew
       </button>
     </div>
   );

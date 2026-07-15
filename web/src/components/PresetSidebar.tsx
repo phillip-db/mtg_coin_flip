@@ -25,15 +25,15 @@ export default function PresetSidebar({
   if (presets.length === 0) {
     return (
       <div className="panel preset-sidebar">
-        <h3>Presets</h3>
-        <p className="preset-empty">No saved presets yet.</p>
+        <h3>Spellbook</h3>
+        <p className="preset-empty">Your spellbook is empty.</p>
       </div>
     );
   }
 
   return (
     <div className="panel preset-sidebar">
-      <h3>Presets</h3>
+      <h3>Spellbook</h3>
       <div className="preset-list">
         {presets.map((p) => (
           <div key={p.id} className="preset-item">
