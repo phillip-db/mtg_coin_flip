@@ -1,17 +1,13 @@
 import { useState, useRef } from "react";
-import coinFlipCards from "../data/coinFlipCards";
-
-function imageUrl(cardName: string): string {
-  return `https://api.scryfall.com/cards/named?exact=${encodeURIComponent(cardName)}&format=image&version=normal`;
-}
+import coinFlipCards, { type CoinFlipCard } from "../data/coinFlipCards";
 
 export default function CardSidebar() {
-  const [hoveredCard, setHoveredCard] = useState<string | null>(null);
+  const [hoveredCard, setHoveredCard] = useState<CoinFlipCard | null>(null);
   const [tooltipY, setTooltipY] = useState(0);
   const sidebarRef = useRef<HTMLDivElement>(null);
 
-  const handleMouseEnter = (name: string, e: React.MouseEvent) => {
-    setHoveredCard(name);
+  const handleMouseEnter = (card: CoinFlipCard, e: React.MouseEvent) => {
+    setHoveredCard(card);
     if (sidebarRef.current) {
       const sidebarRect = sidebarRef.current.getBoundingClientRect();
       const itemRect = (e.currentTarget as HTMLElement).getBoundingClientRect();
@@ -30,7 +26,7 @@ export default function CardSidebar() {
             target="_blank"
             rel="noopener noreferrer"
             className="card-sidebar-link"
-            onMouseEnter={(e) => handleMouseEnter(card.name, e)}
+            onMouseEnter={(e) => handleMouseEnter(card, e)}
             onMouseLeave={() => setHoveredCard(null)}
           >
             {card.name}
@@ -44,8 +40,8 @@ export default function CardSidebar() {
           style={{ top: tooltipY }}
         >
           <img
-            src={imageUrl(hoveredCard)}
-            alt={hoveredCard}
+            src={hoveredCard.imageUrl}
+            alt={hoveredCard.name}
             width={200}
             height={279}
           />
