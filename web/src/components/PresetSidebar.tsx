@@ -10,7 +10,7 @@ interface PresetSidebarProps {
 function normalizeConfig(config: SimConfig): SimConfig {
   return {
     ...config,
-    activeCardName: config.activeCardName ?? (config as Record<string, unknown>).selectedCardName as string | null ?? null,
+    activeCardName: config.activeCardName ?? (config as unknown as Record<string, unknown>).selectedCardName as string | null ?? null,
     supportCardNames: config.supportCardNames ?? [],
   };
 }
@@ -22,7 +22,7 @@ function describeConfig(config: SimConfig): string {
     : "Continuous";
   const pause = config.pause ? "Paused" : "Instant";
   let base = `${choice}, ${config.numCoins} coin${config.numCoins > 1 ? "s" : ""}, ${mode}, ${pause}`;
-  const active = config.activeCardName ?? (config as Record<string, unknown>).selectedCardName as string | undefined;
+  const active = config.activeCardName ?? (config as unknown as Record<string, unknown>).selectedCardName as string | undefined;
   if (active) base += ` | ${active}`;
   const supports = config.supportCardNames ?? [];
   if (supports.length > 0) base += ` + ${supports.length} support`;
